@@ -1,43 +1,48 @@
 import asyncio
 
 import provider as p
-import temperature as t
-import humidity as h
+import enviroment as e
+import ground as g
 
-async def manageTemperature(tmp):
+sensor_data = {
+    'humidityExt'   : 0,
+    'humidityInt'   : 0,
+    'temperatureExt': 0,
+    'temperatureInt': 0,
+    'light'         : 0
+}
+
+async def manageTemperature(env, gnd):
     while True:
-        tExt = tmp.getTemperatureExt()
-        tInt = tmp.getTemperatureInt()
+        sensor_data['temperatureExt'] = env.getTemperature()
+        sensor_data['temperatureInt']  = gnd.getTemperature()
+        sensor_data['light'] = env.getBrightness()
 
-        print(f'TemExt: {tExt}, TempInt: {tInt}')
+        await asyncio.sleep(1)
 
-        if(tExt > 5 and tInt > 7):
-            tmp.sendAlertByHightTemperature()
+async def manageHumidity(env, gnd):
+    while True:
+        sensor_data['humidityExt'] = env.getHumidity()
+        sensor_data['humidityInt'] = gnd.getHumidity()
         
+        await asyncio.sleep(1.5)
+
+async def manageTB(pvd):
+    while True:
+        pvd.sendData(sensor_data)
+        #print(f'Envío datos a TB: {sensor_data}')
         await asyncio.sleep(2)
 
-async def manageHumidity(hum):
-    while True:
-        hExt = hum.getHumidityExt()
-        hInt = hum.getHumidityInt()
-
-        print(f'HumExt: {hExt}, HumInt: {hInt}')
-
-        if(hExt > 5 and hInt > 7):
-            hum.sendAlertByHightHumidity()
-        
-        await asyncio.sleep(0.5)
-
 async def scheduler():
-    tmp = t.Temperature()
-    hum = h.Humidity()
+    env = e.Enviroment()
+    gnd = g.Ground()
+    pvd = p.CloudProvider()
 
     await asyncio.gather(
-        manageTemperature(tmp),
-        manageHumidity(hum),
+        manageTemperature(env, gnd),
+        manageHumidity(env, gnd),
+        manageTB(pvd),
     )
-
-
 
 if __name__ == "__main__":
     asyncio.run(scheduler())
