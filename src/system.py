@@ -1,5 +1,4 @@
 import asyncio
-
 import provider as p
 import enviroment as e
 import ground as g
@@ -27,10 +26,11 @@ async def manageHumidity(env, gnd):
         
         await asyncio.sleep(1.5)
 
-async def manageTB(pvd):
+async def manageTB(pvd, env):
     while True:
         pvd.sendData(sensor_data)
         #print(f'Envío datos a TB: {sensor_data}')
+        env.loadData()
         await asyncio.sleep(2)
 
 async def scheduler():
@@ -41,7 +41,7 @@ async def scheduler():
     await asyncio.gather(
         manageTemperature(env, gnd),
         manageHumidity(env, gnd),
-        manageTB(pvd),
+        manageTB(pvd, env),
     )
 
 if __name__ == "__main__":
