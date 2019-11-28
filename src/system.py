@@ -11,26 +11,33 @@ sensor_data = {
     'light'         : 0
 }
 
-async def manageTemperature(env, gnd):
+async def manageData(env, gnd):
+    while True:
+        env.loadDataFromInternalSensors()
+        sensor_data['temperatureExt'] = env.getTemperature()
+        sensor_data['temperatureInt']  = gnd.getTemperature()
+        sensor_data['light'] = env.getBrightness()
+        sensor_data['humidityExt'] = env.getHumidity()
+        sensor_data['humidityInt'] = gnd.getHumidity()
+
+        ## Actuadores
+        if (sensor_data['light'] > 200 ):
+            env.turnOnLamp(1,1,1)
+        else:
+            env.turnOffLamp()
+
+        await asyncio.sleep(1)
+
+
+async def manageTB(pvd, env, gnd):
     while True:
         sensor_data['temperatureExt'] = env.getTemperature()
         sensor_data['temperatureInt']  = gnd.getTemperature()
         sensor_data['light'] = env.getBrightness()
-
-        await asyncio.sleep(1)
-
-async def manageHumidity(env, gnd):
-    while True:
         sensor_data['humidityExt'] = env.getHumidity()
         sensor_data['humidityInt'] = gnd.getHumidity()
-        
-        await asyncio.sleep(1.5)
-
-async def manageTB(pvd, env):
-    while True:
         pvd.sendData(sensor_data)
-        #print(f'Envío datos a TB: {sensor_data}')
-        env.loadData()
+        #print(f'Envío datos a TB: {sensor_data}') 
         await asyncio.sleep(2)
 
 async def scheduler():
@@ -39,9 +46,8 @@ async def scheduler():
     pvd = p.CloudProvider()
 
     await asyncio.gather(
-        manageTemperature(env, gnd),
-        manageHumidity(env, gnd),
-        manageTB(pvd, env),
+        manageData(env, gnd),
+        manageTB(pvd, env, gnd),
     )
 
 if __name__ == "__main__":
