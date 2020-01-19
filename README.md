@@ -33,7 +33,7 @@ En este proyecto se implementará un sistemabasado en computador, bajo la arquit
 El sistema tendrá las siguientes funcionalidades físicas y software:
 
 SENSORES
-+ Un subsistema que capturelos aspectos relacionadoscon el entorno de la planta: temperatura, humedad y luz, principalmente.
++ Un subsistema que capture los aspectos relacionadoscon el entorno de la planta: temperatura, humedad y luz, principalmente.
 + Un subsistema que capture los aspectos más relevantes del estado interno de la planta: humedad del suelo, nutrientes y sales minerales, entre otros.
 
 ACTUADORES
